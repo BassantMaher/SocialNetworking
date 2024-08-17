@@ -1,0 +1,30 @@
+.single-post {
+  width: 90%;
+  margin: auto;
+  margin-top: 3%;
+  text-align: center;
+  color: #001a62;
+  border: 1px solid #001a62;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 3px 3px 10px rgba(0, 26, 98, 0.275);
+}
+
+.single-post h2 {
+  font-size: 1rem;
+  color: #464646;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #464646;
+}
+
+.single-post__image {
+  height: 20rem;
+  width: 20rem;
+  margin: 1rem auto;
+}
+
+@media (min-width: 768px) {
+  .single-post {
+    width: 40rem;
+  }
+}
