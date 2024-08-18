@@ -1,15 +1,15 @@
 const express = require('express');
 const feedController = require('../controllers/feed');
 const { body } = require('express-validator');
-
+const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
 
 
 // get request to : /feed/posts
-router.get('/posts', feedController.getPosts);
+router.get('/posts', isAuth, feedController.getPosts);
 
-router.post('/post', [
+router.post('/post', isAuth, [
     body('title')
         .trim()
         .isLength({ min: 5 }),
@@ -18,11 +18,11 @@ router.post('/post', [
     .isLength({ min: 5 })
 ], feedController.createPost);
 
-router.get('/post/:postId', feedController.getPost);
+router.get('/post/:postId', isAuth, feedController.getPost);
 
 // to make the edit post work
 // has a body to be sent
-router.put('/post/:postId', [
+router.put('/post/:postId', isAuth, [
     body('title')
         .trim()
         .isLength({ min: 5 }),
@@ -32,6 +32,6 @@ router.put('/post/:postId', [
 ], feedController.updatePost);
 
 // has no body to be send
-router.delete('/post/:postId', feedController.deletePost);
+router.delete('/post/:postId', isAuth, feedController.deletePost);
 
 module.exports = router;
