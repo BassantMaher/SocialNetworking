@@ -3,34 +3,40 @@ const fs = require('fs');
 const path = require('path');
 
 const Post = require('../models/post');
+const User = require('../models/user');
 
-exports.getPosts = (req, res, next) =>{
+exports.getPosts = (req, res, next) => {
     const currentPage = req.query.page || 1;
     const perPage = 5;
     let totalItems;
+
+    // First, count the total number of posts
     Post.find()
         .countDocuments()
-        .then(counts =>{
+        .then(counts => {
             totalItems = counts;
+            // Fetch the actual posts, with the creator field populated
             return Post.find()
-            .skip((currentPage - 1) * perPage)
-            .limit(perPage);
+                .populate('creator', 'name')  // Populate the creator field with the name
+                .skip((currentPage - 1) * perPage)
+                .limit(perPage);
         })
         .then(posts => {
-        res.status(200)
-        .json({
-            message: 'Posts fetched successfully!',
-            posts: posts,
-            totalItems: totalItems
+            // Return the posts along with the total count
+            res.status(200).json({
+                message: 'Posts fetched successfully!',
+                posts: posts,
+                totalItems: totalItems
             });
         })
         .catch(err => {
-        if(!err.statusCode){
-            err.statusCode = 500;
-        }
-        next(err);
-    });
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
+
 
 exports.createPost = (req, res, next) =>{
     const errors = validationResult(req);
@@ -47,20 +53,28 @@ exports.createPost = (req, res, next) =>{
     const title = req.body.title;
     const content = req.body.content;
     const imageUrl = req.file.path.replace(/\\/g, "/");
+    let creator;
     // create post in db
     const post = new Post({
         title: title,
         content: content,
         imageUrl: imageUrl,
-        creator: {
-            name: 'Bassant Maher'
-        }
+        creator: req.userId,
     });
     post.save()
     .then(result => {
+        //  add post to the list of posts of the user
+        return User.findById(req.userId);
+        
+    })
+    .then(user => {
+        user.posts.push(post);
+        return user.save();
+    })
+    .then(result => {
         res.status(201).json({
             message: 'Post created successfully!',
-            post: result
+            post: post,
         });
     })
     .catch(err => {
