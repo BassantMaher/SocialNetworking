@@ -37,16 +37,15 @@ exports.getPosts = (req, res, next) => {
         });
 };
 
-
-exports.createPost = (req, res, next) =>{
+exports.createPost = (req, res, next) => {
     const errors = validationResult(req);
-    if( !errors.isEmpty() ){ // we have errors
-        const error = new Error('validation failed!!, enter valid data');
+    if (!errors.isEmpty()) {
+        const error = new Error('Validation failed, entered data is incorrect.');
         error.statusCode = 422;
         throw error;
     }
-    if(!req.file){
-        const error = new Error('No image provided');
+    if (!req.file) {
+        const error = new Error('No image provided.');
         error.statusCode = 422;
         throw error;
     }
@@ -54,31 +53,35 @@ exports.createPost = (req, res, next) =>{
     const content = req.body.content;
     const imageUrl = req.file.path.replace(/\\/g, "/");
     let creator;
-    // create post in db
+
     const post = new Post({
         title: title,
         content: content,
         imageUrl: imageUrl,
         creator: req.userId,
     });
+
     post.save()
     .then(result => {
-        //  add post to the list of posts of the user
         return User.findById(req.userId);
-        
     })
     .then(user => {
+        creator = user;
         user.posts.push(post);
         return user.save();
     })
     .then(result => {
+        // Populate the creator's name before sending the response
+        return Post.findById(post._id).populate('creator', 'name');
+    })
+    .then(post => {
         res.status(201).json({
             message: 'Post created successfully!',
             post: post,
         });
     })
     .catch(err => {
-        if(!err.statusCode){
+        if (!err.statusCode) {
             err.statusCode = 500;
         }
         next(err);
@@ -133,6 +136,11 @@ exports.updatePost = (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
+        if(post.creator.toString() !== req.userId){
+            const error = new Error('Not authorized');
+            error.statusCode = 403;
+            throw error;
+        }
         if(imageUrl !== post.imageUrl){
             // to delete the previous image from the images folder
             clearImage(post.imageUrl);
@@ -166,8 +174,20 @@ exports.deletePost = (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
+        if(post.creator.toString() !== req.userId){
+            const error = new Error('Not authorized');
+            error.statusCode = 403;
+            throw error;
+        }
         clearImage(post.imageUrl);
         return Post.findByIdAndDelete(postId);
+    })
+    .then(result => {
+        return User.findById(req.userId);
+    })
+    .then(user => {
+        user.posts.pull(postId);
+        return user.save();
     })
     .then(result => {
         console.log(result);
@@ -182,6 +202,52 @@ exports.deletePost = (req, res, next) => {
         next(err);
     });
 };
+
+exports.getStatus = (req, res, next) => {
+    User.findById(req.userId)
+    .then(user => {
+        if(!user){
+            const error = new Error('User not found');
+            error.statusCode = 404;
+            throw error;
+        }
+        return res.status(200).json({
+            status: user.status
+        });
+    })
+    .catch(err => {
+        if(!err.statusCode){
+            err.statusCode = 500;
+        }
+        next(err);
+    })
+};
+exports.updateStatus = (req, res, next) => {
+    const newStatus = req.body.status;
+    User.findById(req.userId)
+    .then(user => {
+        if(!user){
+            const error = new Error('User not found');
+            error.statusCode = 404;
+            throw error;
+        }
+        user.status = newStatus;
+        user.save();
+    })
+    .then(result => {
+        return res.status(200).json({
+            message: 'status updated'
+        });
+    })
+    .catch(err => {
+        if(!err.statusCode){
+            err.statusCode = 500;
+        }
+        next(err);
+    })
+}
+
+
 
 const clearImage = (filePath) => {
     filePath = path.join(__dirname, '..' ,filePath);
