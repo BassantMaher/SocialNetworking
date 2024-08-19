@@ -2,10 +2,12 @@ const { validationResult } = require('express-validator');
 const fs = require('fs');
 const path = require('path');
 
+const io = require('../socket');
+
 const Post = require('../models/post');
 const User = require('../models/user');
 
-exports.getPosts = (req, res, next) => {
+exports.getPosts = async (req, res, next) => {
     const currentPage = req.query.page || 1;
     const perPage = 5;
     let totalItems;
@@ -18,6 +20,7 @@ exports.getPosts = (req, res, next) => {
             // Fetch the actual posts, with the creator field populated
             return Post.find()
                 .populate('creator', 'name')  // Populate the creator field with the name
+                .sort({createdAt: -1})
                 .skip((currentPage - 1) * perPage)
                 .limit(perPage);
         })
@@ -37,56 +40,48 @@ exports.getPosts = (req, res, next) => {
         });
 };
 
-exports.createPost = (req, res, next) => {
+exports.createPost = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        const error = new Error('Validation failed, entered data is incorrect.');
-        error.statusCode = 422;
-        throw error;
+      const error = new Error('Validation failed, entered data is incorrect.');
+      error.statusCode = 422;
+      throw error;
     }
     if (!req.file) {
-        const error = new Error('No image provided.');
-        error.statusCode = 422;
-        throw error;
+      const error = new Error('No image provided.');
+      error.statusCode = 422;
+      throw error;
     }
+    const imageUrl = req.file.path;
     const title = req.body.title;
     const content = req.body.content;
-    const imageUrl = req.file.path.replace(/\\/g, "/");
-    let creator;
-
     const post = new Post({
-        title: title,
-        content: content,
-        imageUrl: imageUrl,
-        creator: req.userId,
+      title: title,
+      content: content,
+      imageUrl: imageUrl,
+      creator: req.userId
     });
-
-    post.save()
-    .then(result => {
-        return User.findById(req.userId);
-    })
-    .then(user => {
-        creator = user;
-        user.posts.push(post);
-        return user.save();
-    })
-    .then(result => {
-        // Populate the creator's name before sending the response
-        return Post.findById(post._id).populate('creator', 'name');
-    })
-    .then(post => {
-        res.status(201).json({
-            message: 'Post created successfully!',
-            post: post,
-        });
-    })
-    .catch(err => {
-        if (!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    });
-};
+    try {
+      await post.save();
+      const user = await User.findById(req.userId);
+      user.posts.push(post);
+      await user.save();
+      io.getIO().emit('posts', {
+        action: 'create',
+        post: { ...post._doc, creator: { _id: req.userId, name: user.name } }
+      });
+      res.status(201).json({
+        message: 'Post created successfully!',
+        post: post,
+        creator: { _id: user._id, name: user.name }
+      });
+    } catch (err) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
+  };
 
 exports.getPost = (req, res, next) => {
     const postId = req.params.postId;
@@ -129,14 +124,14 @@ exports.updatePost = (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
-    Post.findById(postId)
+    Post.findById(postId).populate('creator')
     .then(post => {
         if(!post){
             const error = new Error('Post not found');
             error.statusCode = 404;
             throw error;
         }
-        if(post.creator.toString() !== req.userId){
+        if(post.creator._id.toString() !== req.userId){
             const error = new Error('Not authorized');
             error.statusCode = 403;
             throw error;
@@ -151,6 +146,10 @@ exports.updatePost = (req, res, next) => {
         return post.save();
     })
     .then(result => {
+        io.getIO().emit('posts', {
+            action: 'update',
+            post: result 
+          });
         res.status(200).json({
             message: 'post updated!',
             post: result
@@ -191,6 +190,10 @@ exports.deletePost = (req, res, next) => {
     })
     .then(result => {
         console.log(result);
+        io.getIO().emit('posts', {
+            action: 'delete',
+            post: postId 
+          });
         return res.status(200).json({
             message: 'post deleted'
         });
@@ -212,7 +215,8 @@ exports.getStatus = (req, res, next) => {
             throw error;
         }
         return res.status(200).json({
-            status: user.status
+            status: user.status,
+            name: user.name
         });
     })
     .catch(err => {
