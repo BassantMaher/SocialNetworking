@@ -52,7 +52,7 @@ To set up the Sharekny project locally, follow these steps:
      ```
    - Start the frontend:
      ```bash
-     cd ../cliefrontendnt
+     cd ../frontend
      npm start
      ```
 
