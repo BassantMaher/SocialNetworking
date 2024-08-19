@@ -30,27 +30,29 @@ To set up the Sharekny project locally, follow these steps:
    cd SocialNetworking
    ```
 
-3. **Install server-side dependencies**:
+
+3. **Install client-side dependencies**:
    ```bash
-   cd server
+   cd ../frontend
    npm install
    ```
 
-4. **Install client-side dependencies**:
+4. **Install server-side dependencies**:
    ```bash
-   cd ../client
+   cd ../backend
    npm install
    ```
+
 
 5. **Run the development servers**:
    - Start the backend:
      ```bash
-     cd ../server
+     cd ../backend
      npm start
      ```
    - Start the frontend:
      ```bash
-     cd ../client
+     cd ../cliefrontendnt
      npm start
      ```
 
