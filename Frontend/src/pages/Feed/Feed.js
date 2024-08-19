@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import openSocket from 'socket.io-client';
 
 import Post from '../../components/Feed/Post/Post';
 import Button from '../../components/Button/Button';
@@ -34,12 +35,54 @@ class Feed extends Component {
         return res.json();
       })
       .then(resData => {
-        this.setState({ status: resData.status });
+        this.setState({ 
+          status: resData.status,
+          name : resData.name
+        });
       })
       .catch(this.catchError);
 
     this.loadPosts();
+    const socket = openSocket('http://localhost:8080');
+    socket.on('posts', data => {
+      if (data.action === 'create') {
+        this.addPost(data.post);
+      } else if (data.action === 'update'){
+        this.updatePost(data.post);
+      }else if (data.action === 'delete') {
+        this.loadPosts();
+      }
+    }); 
   }
+
+  addPost = post => {
+    this.setState(prevState => {
+      const updatedPosts = [...prevState.posts];
+      if (prevState.postPage === 1) {
+        if (prevState.posts.length >= 2) {
+          updatedPosts.pop();
+        }
+        updatedPosts.unshift(post);
+      }
+      return {
+        posts: updatedPosts,
+        totalPosts: prevState.totalPosts + 1
+      };
+    });
+  };
+
+  updatePost = post => {
+    this.setState(prevState => {
+      const updatedPosts = [...prevState.posts];
+      const updatedPostIndex = updatedPosts.findIndex(p => p._id === post._id);
+      if (updatedPostIndex > -1) {
+        updatedPosts[updatedPostIndex] = post;
+      }
+      return {
+        posts: updatedPosts
+      };
+    });
+  };
 
   loadPosts = direction => {
     if (direction) {
@@ -128,7 +171,6 @@ class Feed extends Component {
     this.setState({
       editLoading: true
     });
-    // Set up data (with image!)
     const formData = new FormData();
     formData.append('title', postData.title);
     formData.append('content', postData.content);
@@ -143,9 +185,9 @@ class Feed extends Component {
     fetch(url, {
       method: method,
       body: formData,
-        headers: {
-          Authorization: 'Bearer ' + this.props.token,
-        }
+      headers: {
+        Authorization: 'Bearer ' + this.props.token
+      }
     })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
@@ -154,6 +196,7 @@ class Feed extends Component {
         return res.json();
       })
       .then(resData => {
+        console.log(resData);
         const post = {
           _id: resData.post._id,
           title: resData.post.title,
@@ -162,24 +205,12 @@ class Feed extends Component {
           createdAt: resData.post.createdAt
         };
         this.setState(prevState => {
-          let updatedPosts = [...prevState.posts];
-          if (prevState.editPost) {
-            const postIndex = prevState.posts.findIndex(
-              p => p._id === prevState.editPost._id
-            );
-            updatedPosts[postIndex] = post;
-          } else if (prevState.posts.length < 2) {
-            updatedPosts = prevState.posts.concat(post);
-          }
           return {
-            posts: updatedPosts,
             isEditing: false,
             editPost: null,
             editLoading: false
           };
-          
         });
-        
       })
       .catch(err => {
         console.log(err);
@@ -243,6 +274,8 @@ class Feed extends Component {
           onFinishEdit={this.finishEditHandler}
         />
         <section className="feed__status">
+          {/* add username */}
+          <h3 style={{ textAlign: 'center', color: '#001a62' }}>Welcome {this.state.name}, What's on your mind!</h3>
           <form onSubmit={this.statusUpdateHandler}>
             <Input
               type="text"

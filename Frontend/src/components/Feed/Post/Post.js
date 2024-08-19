@@ -2,6 +2,7 @@ import React from 'react';
 
 import Button from '../../Button/Button';
 import './Post.css';
+import Image from '../../Image/Image';
 
 const post = props => (
   <article className="post">
@@ -12,9 +13,9 @@ const post = props => (
       <h1 className="post__title">{props.title}</h1>
     </header>
     {/* <div className="post__image">
-      <Image imageUrl={props.image} contain />
-    </div>
-    <div className="post__content">{props.content}</div> */}
+      <Image imageUrl={props.image} contain/>
+    </div>*/}
+    <div className="post__content">{props.content}</div> 
     <div className="post__actions">
       <Button mode="flat" link={props.id}>
         View
