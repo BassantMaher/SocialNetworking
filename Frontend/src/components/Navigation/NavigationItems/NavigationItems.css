@@ -1,5 +1,6 @@
 .navigation-item {
   padding: 0 1.5rem;
+  text-decoration: none;
 }
 
 .navigation-item a {
@@ -13,13 +14,13 @@
 }
 
 .navigation-item.mobile a {
-  color: #001a62;
+  color: #ffffff;
 }
 
 .navigation-item a:hover,
 .navigation-item a:active,
 .navigation-item a.active {
-  color: #ff8d00;
+  color: #ff6a00;
 }
 
 .navigation-item:last-of-type {
@@ -37,5 +38,5 @@
 
 .navigation-item button:hover,
 .navigation-item button:active {
-  color: #ff8d00;
+  color: #ff6a00;
 }

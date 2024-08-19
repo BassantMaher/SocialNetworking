@@ -5,7 +5,7 @@
   height: 100vh;
   width: 30rem;
   max-width: 90%;
-  background: #001a62;
+  background: #03123e;
   box-shadow: 1px 0 8px rbga(0, 0, 0, 0.26);
   transition: transform 0.3s ease-out;
   transform: translateX(-100%);

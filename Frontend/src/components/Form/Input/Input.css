@@ -15,18 +15,20 @@
   font: inherit;
   padding: 0.25rem 0.5rem;
   width: 100%;
-  border-radius: 3px;
-  border: 1px solid #ccc;
+  border-radius: 8px;
+  border: 1px solid #03123e72;
+  background-color: transparent;
+
 }
 
 .input .touched.invalid {
     border-color: red;
-    background: #ffc2c2;
+    background: #fcc9c9;
 }
 
 .input input:focus,
 .input textarea:focus {
   outline: none;
-  border-color: #001a62;
-  color: #001a62;
+  border-color: #03123e;
+  color: #03123e;
 }

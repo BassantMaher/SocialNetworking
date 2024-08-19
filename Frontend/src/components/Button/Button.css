@@ -1,8 +1,8 @@
 .button {
   font: inherit;
-  border: 1px solid #001a62;
-  color: #001a62;
-  background: none;
+  border: 1px solid #03123e;
+  color: #03123e;
+  background: transparent;
   padding: 0.5rem 1rem;
   cursor: pointer;
   text-transform: uppercase;
@@ -15,7 +15,7 @@
 }
 
 .button:disabled {
-  background: #ccc;
+  /* background: #ccc; */
   color: #888888;
   cursor: not-allowed;
   border: #ccc;
@@ -24,14 +24,14 @@
 
 .button:disabled:hover,
 .button:disabled:active {
-  background: #ccc;
+  /* background: #ccc; */
   color: #888888;
   border: #ccc;
 }
 
 .button:hover,
 .button:active {
-  background: #001a62;
+  border:1px solid #03123e;
   color: white;
 }
 
@@ -41,14 +41,14 @@
 
 .button--flat:hover,
 .button--flat:active {
-  background: rgba(20, 0, 98, 0.3);
-  color: #001a62;
+  /* background: rgba(20, 0, 98, 0.3); */
+  color: #03123e;
 }
 
 .button--raised {
-  background: #001a62;
+  background: #03123e;
   color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.26);
+  /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.26); */
 }
 
 .button--raised:hover,
@@ -57,25 +57,25 @@
 }
 
 .button.button--accent {
-  border-color: #e0bf03;
-  color: #ff8d00;
+  border-color: #d05803;
+  color: #ff6a00;
 }
 
 .button--accent:hover,
 .button--accent:active {
   background: #d5b603;
-  color: #001a62;
+  color: #03123e;
 }
 
 .button--flat.button--accent:hover,
 .button--flat.button--accent:active {
   background: rgba(250, 184, 63, 0.3);
-  color: #ff8d00;
+  color: #ff6a00;
 }
 
 .button.button--accent.button--raised {
-  background: #ff8d00;
-  color: #001a62;
+  background: #ff6a00;
+  color: #03123e;
 }
 
 .button--raised.button--accent:hover,

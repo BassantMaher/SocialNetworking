@@ -275,10 +275,11 @@ class Feed extends Component {
         />
         <section className="feed__status">
           {/* add username */}
-          <h3 style={{ textAlign: 'center', color: '#001a62' }}>Welcome {this.state.name}, What's on your mind!</h3>
+          <h3 style={{ textAlign: 'center', color: '#03123e' }}>Welcome {this.state.name}, What's on your mind!</h3>
           <form onSubmit={this.statusUpdateHandler}>
             <Input
               type="text"
+              class="status-input"
               placeholder="Your status"
               control="input"
               onChange={this.statusInputChangeHandler}

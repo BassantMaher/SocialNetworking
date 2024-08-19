@@ -14,9 +14,9 @@ class SinglePost extends Component {
 
   componentDidMount() {
     const postId = this.props.match.params.postId;
-    fetch('http://localhost:8080/feed/post/'+ postId, {
+    fetch('http://localhost:8080/feed/post/' + postId, {
       headers: {
-        Authorization: 'Bearer ' + this.props.token,
+        Authorization: 'Bearer ' + this.props.token
       }
     })
       .then(res => {
@@ -29,10 +29,11 @@ class SinglePost extends Component {
         this.setState({
           title: resData.post.title,
           author: resData.post.creator.name,
-          image: 'http://localhost:8080/' + resData.post.imageUrl,
+          image: 'http://localhost:8080/'+ resData.post.imageUrl,
           date: new Date(resData.post.createdAt).toLocaleDateString('en-US'),
           content: resData.post.content
         });
+        console.log("url from backend: ", this.state.image);
       })
       .catch(err => {
         console.log(err);
@@ -44,7 +45,7 @@ class SinglePost extends Component {
       <section className="single-post">
         <h1>{this.state.title}</h1>
         <h2>
-          Created by {this.state.author} on {this.state.date}
+          Created on {this.state.date}
         </h2>
         <div className="single-post__image">
           <Image contain imageUrl={this.state.image} />
