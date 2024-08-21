@@ -1,16 +1,29 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+// const fs = require('fs');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
+const dotenv = require('dotenv');
+const helmet = require('helmet');
+// const compression = require('compression');
+// const morgan = require('morgan');
+
+
+if (process.env.NODE_ENV !== 'production') {
+    dotenv.config();
+  }
 
 
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
+const { Stream } = require('stream');
 
-const URI = 'mongodb+srv://bassantmaher:bassantmaher@learnmongodb.ecnkz3s.mongodb.net/socialNetwork';
+const URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@learnmongodb.ecnkz3s.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}`;
+
+
 
 const app = express();
  
@@ -46,6 +59,14 @@ app.use(cors());
 app.use('/feed',feedRoutes);
 app.use('/auth',authRoutes);
 
+// const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
+
+app.use(helmet());
+// app.use(compression());
+// app.use(morgan('combined', {Stream: accessLogStream}));
+
+// console.log(accessLogStream);
+
 app.use((error, req, res, next) => {
     console.log(error);
     const status = error.statusCode || 500;
@@ -53,6 +74,8 @@ app.use((error, req, res, next) => {
     const data = error.data;
     res.status(status).json({ message: message });
 });
+
+
 
 // app.use((req, res, next) => {
 //     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -69,11 +92,10 @@ app.use((error, req, res, next) => {
 
 mongoose.connect(URI)
 .then(result => {
-    const server = app.listen(8080); // we use http server
+    const server = app.listen(process.env.PORT || 3030); // we use http server
     const io = require('./socket').init(server);
      io.on("connection", (socket) => {
         console.log("client connected");
      });
 })
 .catch(err => console.log(err));
-

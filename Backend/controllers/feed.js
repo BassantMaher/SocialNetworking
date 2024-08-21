@@ -52,9 +52,10 @@ exports.createPost = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    const imageUrl = req.file.path;
+    let imageUrl = req.file.path;
     const title = req.body.title;
     const content = req.body.content;
+    imageUrl = imageUrl.replace(/\\/g, '/');
     const post = new Post({
       title: title,
       content: content,
@@ -83,7 +84,7 @@ exports.createPost = async (req, res, next) => {
     }
   };
 
-exports.getPost = (req, res, next) => {
+  exports.getPost = (req, res, next) => {
     const postId = req.params.postId;
     Post.findById(postId)
     .then(post => {
@@ -92,6 +93,7 @@ exports.getPost = (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
+        console.log(post.imageUrl);
         res.status(200).json({
             message: 'Posts found',
             post: post
