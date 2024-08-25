@@ -7,7 +7,7 @@
 
 ## Live Demo
    
-[Go live](https://socailnetwork.netlify.app/)
+[https://socailnetwork.netlify.app/](https://socailnetwork.netlify.app/)
    
 
 ## Features
