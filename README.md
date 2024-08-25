@@ -81,6 +81,10 @@ To set up the Sharekny project locally, follow these steps:
 - **JWT**: JSON Web Tokens for authentication.
 - **CSS/SCSS**: Styling the user interface.
 
+## ⚠️ Disclaimer: 
+
+   Please note that this platform allows users to create accounts and upload posts. I am not responsible for any image uploads that may contain violations or inappropriate content. I kindly ask users to respect the platform and not misuse it to post bad or harmful content. Let’s keep this space positive and valuable for everyone! 
+
 ## Acknowledgements
 
 This project was developed following the **NodeJS - The Complete Guide (MVC, REST APIs, GraphQL, Deno)** course by [Maximilian Schwarzmüller](https://academind.com/).
