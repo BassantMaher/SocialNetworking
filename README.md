@@ -6,9 +6,9 @@
 **SHAREKNY** is a real-time social networking platform built using Node.js, React.js, and Socket.io. It allows users to create, view, edit, and delete posts, as well as view feeds. The platform includes robust validation and authentication across all features, ensuring a secure and seamless user experience.
 
 ## Live Demo
-   ```bash
+   
       https://socailnetwork.netlify.app/
-   ```
+   
 
 ## Features
 
